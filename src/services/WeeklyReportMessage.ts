@@ -14,7 +14,7 @@ export class WeeklyReportScheduler {
      * Start the weekly report scheduler
      */
     start(): void {
-        console.log('✅ Weekly report scheduler started - will send messages on Sundays at 12pm and 11:30pm Arizona time');
+        console.log('✅ Weekly report scheduler started - will send messages on Sundays at 12pm and 9pm Arizona time');
 
         // Check immediately and then every minute
         this.checkAndSendReports();
@@ -49,7 +49,7 @@ export class WeeklyReportScheduler {
 
     /**
      * Check if we should send the weekly report right now
-     * Returns true if it's Sunday at 12:00 PM or 11:30 PM Arizona time
+     * Returns true if it's Sunday at 12:00 PM or 9:00 PM Arizona time
      */
     private shouldSendReport(): boolean {
         const now = new Date();
@@ -64,9 +64,9 @@ export class WeeklyReportScheduler {
         // Only on Sundays
         if (day !== 0) return false;
 
-        // Check if it's 12:00 PM (noon) or 11:30 PM
+        // Check if it's 12:00 PM (noon) or 9:00 PM
         const isNoon = hour === 12 && minute === 0;
-        const isEvening = hour === 23 && minute === 30;
+        const isEvening = hour === 21 && minute === 0;
 
         return isNoon || isEvening;
     }
@@ -80,7 +80,7 @@ export class WeeklyReportScheduler {
         const arizonaTime = new Date(now.toLocaleString("en-US", {timeZone: "America/Phoenix"}));
         const hour = arizonaTime.getHours();
 
-        // Determine if this is the first (12 PM) or second (11:30 PM) message
+        // Determine if this is the first (12 PM) or second (9 PM) message
         const messageNumber = hour === 12 ? '1/2' : '2/2';
 
         // Get environment variables
@@ -179,8 +179,8 @@ Weekly Report Link: ${weeklyReportUrl}`;
             const hour = arizonaTime.getHours();
             const minute = arizonaTime.getMinutes();
 
-            if (hour > 23 || (hour === 23 && minute >= 30)) {
-                // Past 11:30 PM, move to next Sunday
+            if (hour > 21 || (hour === 21 && minute >= 0)) {
+                // Past 9:00 PM, move to next Sunday
                 nextSunday.setDate(now.getDate() + 7);
             }
         } else {
@@ -192,7 +192,7 @@ Weekly Report Link: ${weeklyReportUrl}`;
         const [year, month, day] = arizonaDateStr.split('-').map(num => parseInt(num, 10));
 
         const noonTime = new Date(`${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}T12:00:00.000-07:00`);
-        const eveningTime = new Date(`${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}T23:30:00.000-07:00`);
+        const eveningTime = new Date(`${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}T21:00:00.000-07:00`);
 
         return {
             noon: noonTime,

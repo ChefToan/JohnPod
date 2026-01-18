@@ -107,7 +107,7 @@ client.once(Events.ClientReady, async (readyClient) => {
         weeklyReportScheduler = new WeeklyReportScheduler(client);
         weeklyReportScheduler.start();
         global.testScheduler = weeklyReportScheduler; // For manual testing
-        console.log('✅ Weekly report scheduler started - will send messages on Sundays at 12pm and 11:30pm Arizona time');
+        console.log('✅ Weekly report scheduler started - will send messages on Sundays at 12pm and 9pm Arizona time');
     } else {
         console.log('⏸️ Weekly report scheduler is disabled (ENABLE_WEEKLY_REPORTS not set to "true")');
     }
