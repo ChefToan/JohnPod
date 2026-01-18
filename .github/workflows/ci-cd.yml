@@ -91,7 +91,10 @@ jobs:
           
           # Use Node.js 20
           nvm use 20 || nvm install 20
-          
+
+          # Set PM2 home directory (CRITICAL FIX)
+          export PM2_HOME=/home/ubuntu/.pm2
+
           # Install/update dependencies with Yarn
           yarn install --frozen-lockfile
           
@@ -125,5 +128,8 @@ jobs:
         key: ${{ secrets.SERVER_SSH_KEY }}
         port: ${{ secrets.SERVER_PORT || 22 }}
         script: |
+          # Set PM2 home directory
+          export PM2_HOME=/home/ubuntu/.pm2
+
           cd /home/ubuntu/asu-dining-menu-bot
           bash deploy/health-check.sh
