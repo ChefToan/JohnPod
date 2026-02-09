@@ -1,4 +1,4 @@
-import { DiningHallId, MealPeriodId } from '../commands/type/menu';
+import { DiningHallId } from '../commands/type/menu';
 
 export const DINING_HALLS = {
     barrett: {
@@ -25,42 +25,6 @@ export const DINING_HALLS = {
         name: "HIDA",
         id: DiningHallId.HIDA
     }
-};
-
-// Keep this for reference, but we'll now dynamically fetch periods
-export const MEAL_PERIODS = {
-    breakfast: {
-        name: "Breakfast",
-        id: MealPeriodId.Breakfast
-    },
-    lunch: {
-        name: "Lunch",
-        id: MealPeriodId.Lunch
-    },
-    light_lunch: {
-        name: "Light Lunch",
-        id: MealPeriodId.LightLunch
-    },
-    dinner: {
-        name: "Dinner",
-        id: MealPeriodId.Dinner
-    },
-    brunch: {
-        name: "Brunch",
-        id: MealPeriodId.Brunch
-    }
-};
-
-// Cache configuration
-export const CACHE_CONFIG = {
-    // Default TTL (Time-to-live) for cache entries in milliseconds
-    DEFAULT_TTL: 4 * 60 * 60 * 1000, // 4 hours (reduced from 24)
-
-    // Whether to auto-clean expired cache entries periodically
-    AUTO_CLEAN: true,
-
-    // Interval for auto-cleaning in milliseconds (every 30 minutes)
-    CLEAN_INTERVAL: 30 * 60 * 1000
 };
 
 // Menu command configuration

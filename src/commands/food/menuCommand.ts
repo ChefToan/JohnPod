@@ -10,7 +10,6 @@ import {
 import { fetchMenu, organizeMenuByStation, getStationNames } from '../../utils/api';
 import { DINING_HALLS, MENU_CONFIG } from '../../utils/config';
 import { MenuResponse, MenuItem } from '../type/menu';
-import { menuCacheService } from '../../services/menuCacheService';
 import {
     Period,
     parsePeriods,
@@ -27,7 +26,7 @@ import {
 
 export const data = new SlashCommandBuilder()
     .setName('menu')
-    .setDescription('Get the dining menu for ASU campus dining halls')
+    .setDescription('Get the dining hall menu')
     .addStringOption(option =>
         option.setName('dining_hall')
             .setDescription('The dining hall to get the menu for')
@@ -327,7 +326,7 @@ async function handleStationButtonSelection(
     }
 
     // Create station content string
-    const stationContent = stationItems.map(item => `• ${item.MarketingName}`).join('\n');
+    const stationContent = stationItems.map(item => `- ${item.MarketingName}`).join('\n');
 
     // Parse the date for time validation
     const [month, day, year] = formattedDate.split('/').map(num => parseInt(num, 10));

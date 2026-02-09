@@ -48,12 +48,3 @@ export enum DiningHallId {
     MU = "4293",
     HIDA = "88279"
 }
-
-// Mapping of meal period names to their IDs
-export enum MealPeriodId {
-    Breakfast = "980",
-    Lunch = "981",
-    LightLunch = "3080",
-    Dinner = "982",
-    Brunch = "983"
-}

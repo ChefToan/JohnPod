@@ -14,7 +14,7 @@ export class WeeklyReportScheduler {
      * Start the weekly report scheduler
      */
     start(): void {
-        console.log('✅ Weekly report scheduler started - will send messages on Sundays at 12pm and 9pm Arizona time');
+        console.log('Weekly report scheduler started - will send messages on Sundays at 12pm and 9pm Arizona time');
 
         // Check immediately and then every minute
         this.checkAndSendReports();
@@ -97,7 +97,7 @@ export class WeeklyReportScheduler {
             const productionMessage = `<@&${productionRoleId}> Weekly Report Reminder! (${messageNumber})
 Weekly Report Link: ${weeklyReportUrl}`;
             await this.sendToChannel(productionChannelId, productionServerId, productionMessage);
-            console.log(`✅ Weekly report (${messageNumber}) sent to production server`);
+            console.log(`Weekly report (${messageNumber}) sent to production server`);
         }
 
         // Also send to test server

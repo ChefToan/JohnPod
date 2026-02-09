@@ -1,22 +1,17 @@
 {
-  "name": "asu-dining-bot",
-  "version": "0.1.0",
-  "description": "Discord bot for ASU dining hall menus",
+  "name": "johnpod",
+  "version": "1.0.0",
+  "description": "Just a simple helpful discord bot for me and my fellow CAs",
   "main": "dist/index.js",
   "scripts": {
     "build": "tsc",
     "start": "node dist/index.js",
     "dev": "nodemon --watch \"src/**/*.ts\" --exec \"npx ts-node\" src/index.ts",
-    "migrate": "psql $DATABASE_URL -f database/db_migration.sql",
     "lint": "eslint src/**/*.ts",
     "lint:fix": "eslint src/**/*.ts --fix",
-    "typecheck": "tsc --noEmit",
-    "deploy": "chmod +x deploy/*.sh && ./deploy/deploy.sh",
-    "setup-server": "chmod +x deploy/setup-server.sh && ./deploy/setup-server.sh",
-    "health-check": "chmod +x deploy/health-check.sh && ./deploy/health-check.sh"
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@supabase/supabase-js": "^2.54.0",
     "axios": "^1.8.4",
     "discord.js": "^14.18.0",
     "dotenv": "^16.5.0"
@@ -31,7 +26,7 @@
     "typescript": "^5.8.3"
   },
   "private": true,
-  "repository": "git@github.com:ChefToan/asu-dining-menu-bot.git",
+  "repository": "git@github.com:ChefToan/JohnPod.git",
   "author": "Toan",
   "license": "MIT"
 }

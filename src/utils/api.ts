@@ -45,15 +45,4 @@ export function getStationNames(menuData: MenuResponse): Map<string, string> {
 }
 
 
-// Clear the cache (for testing or forced refreshes)
-export async function clearMenuCache(): Promise<void> {
-    const { menuService } = await import('../services/menuService');
-    await menuService.clearCache();
-    console.log('Menu cache cleared');
-}
 
-// Get cache stats (for debugging)
-export async function getCacheStats(): Promise<{ total: number, expired: number }> {
-    const { menuService } = await import('../services/menuService');
-    return await menuService.getCacheStats();
-}

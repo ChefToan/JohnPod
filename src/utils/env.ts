@@ -5,8 +5,6 @@ config();
 interface RequiredEnvVars {
     DISCORD_TOKEN: string;
     APPLICATION_ID: string;
-    SUPABASE_URL: string;
-    SUPABASE_ANON_KEY: string;
 }
 
 interface OptionalEnvVars {
@@ -38,7 +36,7 @@ class EnvironmentValidator {
     }
 
     private validateAndLoadEnv(): void {
-        const requiredVars = ['DISCORD_TOKEN', 'APPLICATION_ID', 'SUPABASE_URL', 'SUPABASE_ANON_KEY'];
+        const requiredVars = ['DISCORD_TOKEN', 'APPLICATION_ID'];
         const missing: string[] = [];
 
         for (const varName of requiredVars) {
@@ -48,7 +46,7 @@ class EnvironmentValidator {
         }
 
         if (missing.length > 0) {
-            console.error('❌ Missing required environment variables:');
+            console.error('Missing required environment variables:');
             missing.forEach(varName => console.error(`   - ${varName}`));
             console.error('\nCreate a .env file with the required variables and restart the bot.');
             process.exit(1);
@@ -56,9 +54,7 @@ class EnvironmentValidator {
 
         this.envVars = {
             DISCORD_TOKEN: process.env.DISCORD_TOKEN!,
-            APPLICATION_ID: process.env.APPLICATION_ID!,
-            SUPABASE_URL: process.env.SUPABASE_URL!,
-            SUPABASE_ANON_KEY: process.env.SUPABASE_ANON_KEY!
+            APPLICATION_ID: process.env.APPLICATION_ID!
         };
 
         this.optionalVars = {
@@ -73,7 +69,7 @@ class EnvironmentValidator {
             ENABLE_WEEKLY_REPORTS: process.env.ENABLE_WEEKLY_REPORTS
         };
 
-        console.log('✅ Environment variables validated successfully');
+        console.log('Environment variables validated successfully');
     }
 
     public get(key: keyof RequiredEnvVars): string {

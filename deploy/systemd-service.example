@@ -1,9 +1,9 @@
-# Example systemd service file for ASU Dining Bot
-# Copy this file to /etc/systemd/system/asu-dining-bot.service
+# Systemd service file for JohnPod
+# Copy this file to /etc/systemd/system/johnpod.service
 # Update paths and user as needed
 
 [Unit]
-Description=ASU Dining Menu Discord Bot
+Description=JohnPod Discord Bot
 After=network.target
 Wants=network.target
 
@@ -11,25 +11,24 @@ Wants=network.target
 Type=simple
 User=ubuntu
 Group=ubuntu
-WorkingDirectory=/home/ubuntu/asu-dining-menu-bot
-ExecStart=/usr/bin/node /home/ubuntu/asu-dining-menu-bot/dist/index.js
+WorkingDirectory=/home/ubuntu/johnpod
+ExecStart=/usr/bin/node /home/ubuntu/johnpod/dist/index.js
 Restart=always
 RestartSec=10
 Environment=NODE_ENV=production
-EnvironmentFile=/home/ubuntu/asu-dining-menu-bot/.env
+EnvironmentFile=/home/ubuntu/johnpod/.env
 
-# Logging
-StandardOutput=append:/var/log/asu-dining-bot/stdout.log
-StandardError=append:/var/log/asu-dining-bot/stderr.log
-SyslogIdentifier=asu-dining-bot
+# Logging (uses journald, view with: journalctl -u johnpod)
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=johnpod
 
 # Security settings
 NoNewPrivileges=true
 PrivateTmp=true
 ProtectSystem=strict
-ProtectHome=true
-ReadWritePaths=/home/ubuntu/asu-dining-menu-bot
-ReadWritePaths=/var/log/asu-dining-bot
+ProtectHome=read-only
+ReadWritePaths=/home/ubuntu/johnpod
 
 [Install]
 WantedBy=multi-user.target

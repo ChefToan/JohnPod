@@ -150,17 +150,17 @@ export class ErrorHandler {
         switch (error.type) {
             case ErrorType.DATABASE:
             case ErrorType.API:
-                console.error(`🔴 ${logMessage}`);
+                console.error(`[ERROR] ${logMessage}`);
                 break;
             case ErrorType.VALIDATION:
             case ErrorType.PERMISSION:
-                console.warn(`🟡 ${logMessage}`);
+                console.warn(`[WARN] ${logMessage}`);
                 break;
             case ErrorType.TIMEOUT:
-                console.warn(`⏰ ${logMessage}`);
+                console.warn(`[TIMEOUT] ${logMessage}`);
                 break;
             default:
-                console.error(`❓ ${logMessage}`);
+                console.error(`[UNKNOWN] ${logMessage}`);
         }
 
         // In production, you might want to send to external logging service
@@ -198,12 +198,12 @@ export class ErrorHandler {
         try {
             if (interaction.replied || interaction.deferred) {
                 await interaction.followUp({
-                    content: `❌ ${userMessage}`,
+                    content: userMessage,
                     ephemeral: true
                 });
             } else {
                 await interaction.reply({
-                    content: `❌ ${userMessage}`,
+                    content: userMessage,
                     ephemeral: true
                 });
             }
@@ -222,7 +222,7 @@ export class ErrorHandler {
 
         // Alert if error rate is high (simple threshold)
         if (count > 10) {
-            console.warn(`🚨 High error rate detected for ${key}: ${count} errors`);
+            console.warn(`High error rate detected for ${key}: ${count} errors`);
         }
     }
 
