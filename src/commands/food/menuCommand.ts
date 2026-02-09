@@ -1,6 +1,6 @@
 import {
     SlashCommandBuilder,
-    CommandInteraction,
+    ChatInputCommandInteraction,
     ComponentType,
     ButtonInteraction,
     ActionRowBuilder,
@@ -39,7 +39,7 @@ export const data = new SlashCommandBuilder()
             .setRequired(false)
     );
 
-export async function execute(interaction: CommandInteraction) {
+export async function execute(interaction: ChatInputCommandInteraction) {
     try {
         await interaction.deferReply();
 
@@ -101,7 +101,7 @@ export async function execute(interaction: CommandInteraction) {
 
 // Set up interaction handlers for the menu command
 export async function setupInteractionHandlers(
-    interaction: CommandInteraction | ButtonInteraction,
+    interaction: ChatInputCommandInteraction | ButtonInteraction,
     diningHall: any,
     diningHallOption: string,
     formattedDate: string,
@@ -365,7 +365,7 @@ async function handleStationButtonSelection(
 
 // Handle collector end
 async function handleCollectorEnd(
-    interaction: CommandInteraction | ButtonInteraction
+    interaction: ChatInputCommandInteraction | ButtonInteraction
 ) {
     try {
         if (interaction.replied || interaction.deferred) {
@@ -379,7 +379,7 @@ async function handleCollectorEnd(
 }
 
 // Error handling
-async function handleError(interaction: CommandInteraction, error: any) {
+async function handleError(interaction: ChatInputCommandInteraction, error: any) {
     console.error('Error in menu command:', error);
 
     const errorMessage = error.message === MENU_CONFIG.MESSAGES.INVALID_DATE_FORMAT 
