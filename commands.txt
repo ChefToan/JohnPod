@@ -1,0 +1,18 @@
+Service
+  sudo systemctl start johnpod
+  sudo systemctl stop johnpod
+  sudo systemctl restart johnpod
+  sudo systemctl status johnpod
+
+Logs
+  journalctl -u johnpod -f              Follow live
+  journalctl -u johnpod --since today   Today only
+  journalctl -u johnpod -n 50           Last 50 lines
+  sudo journalctl --rotate; sudo journalctl --vacuum-time=1s   Clear all logs
+
+Deploy
+  cd /home/ubuntu/johnpod
+  git pull origin main
+  npm ci
+  npm run build
+  sudo systemctl restart johnpod

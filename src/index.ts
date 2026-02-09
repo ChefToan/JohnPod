@@ -1,12 +1,9 @@
 import { Client, Events, GatewayIntentBits, Collection, REST, Routes } from 'discord.js';
-import * as readline from 'readline';
 import { env } from './utils/env';
 import { errorHandler } from './utils/errorHandler';
 import * as menuCommand from './commands/food/menuCommand';
 import * as susCommand from './commands/susCommand';
 import { menuScheduler } from './services/menuScheduler';
-import { menuCache } from './services/menuCache';
-import { DINING_HALLS } from './utils/config';
 import { WeeklyReportScheduler } from './services/WeeklyReportMessage';
 
 const client = new Client({
@@ -137,29 +134,4 @@ process.on('unhandledRejection', (error) => {
 process.on('uncaughtException', (error) => {
     console.error('Uncaught exception:', error);
     console.log('Bot will attempt to continue running...');
-});
-
-// Console commands - type these while the bot is running
-const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
-rl.on('line', (input) => {
-    const cmd = input.trim().toLowerCase();
-
-    if (cmd === 'cache') {
-        console.log(`\n--- Menu Cache ---`);
-        console.log(`Entries: ${menuCache.size()}`);
-        for (const [key, config] of Object.entries(DINING_HALLS)) {
-            const has = menuCache.has(config.id);
-            console.log(`  ${config.name} (${config.id}): ${has ? 'cached' : 'empty'}`);
-        }
-        console.log('');
-    } else if (cmd === 'refresh') {
-        console.log('Refreshing menu cache...');
-        menuScheduler.start();
-    } else if (cmd === 'help') {
-        console.log('\n--- Commands ---');
-        console.log('  cache    - Show menu cache status');
-        console.log('  refresh  - Force refresh all menus');
-        console.log('  help     - Show this message');
-        console.log('');
-    }
 });
