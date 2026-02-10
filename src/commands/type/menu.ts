@@ -14,6 +14,7 @@ export interface MenuItem {
 export interface MenuStation {
     StationId: string;
     Name: string;
+    PeriodId?: string;
 }
 
 export interface MenuPeriod {

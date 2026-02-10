@@ -5,6 +5,8 @@ import * as menuCommand from './commands/food/menuCommand';
 import * as susCommand from './commands/susCommand';
 import { menuScheduler } from './services/menuScheduler';
 import { WeeklyReportScheduler } from './services/WeeklyReportMessage';
+import { commandCooldown } from './utils/rateLimiter';
+import { healthMonitor } from './utils/healthMonitor';
 
 const client = new Client({
     intents: [
@@ -32,6 +34,9 @@ client.once(Events.ClientReady, async (readyClient) => {
     await menuScheduler.start();
     console.log('Menu scheduler started');
 
+    // Start health monitor (logs stats every 30 min, runs maintenance)
+    healthMonitor.start();
+
     const enableWeeklyReports = env.getOptional('ENABLE_WEEKLY_REPORTS');
     if (enableWeeklyReports === 'true') {
         console.log('Starting weekly report scheduler...');
@@ -48,8 +53,20 @@ client.on(Events.InteractionCreate, async (interaction) => {
         const command = client.commands.get(interaction.commandName);
         if (!command) return;
 
+        // Per-user command cooldown
+        const cooldownRemaining = commandCooldown.check(interaction.user.id, interaction.commandName);
+        if (cooldownRemaining > 0) {
+            await interaction.reply({
+                content: `Please wait ${cooldownRemaining}s before using /${interaction.commandName} again.`,
+                ephemeral: true
+            });
+            return;
+        }
+
         try {
             await command.execute(interaction);
+            // Set cooldown after successful execution
+            commandCooldown.set(interaction.user.id, interaction.commandName);
         } catch (error) {
             await errorHandler.handleCommandError(interaction, error, {
                 commandName: interaction.commandName
@@ -105,6 +122,7 @@ async function gracefulShutdown(signal: string) {
 
     try {
         menuScheduler.stop();
+        healthMonitor.stop();
 
         if (weeklyReportScheduler) {
             weeklyReportScheduler.stop();

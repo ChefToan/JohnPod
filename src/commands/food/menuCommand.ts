@@ -216,8 +216,8 @@ async function handlePeriodSelection(
         return;
     }
 
-    const stationMap = organizeMenuByStation(periodMenuData);
-    const stationNames = getStationNames(periodMenuData);
+    const stationMap = organizeMenuByStation(periodMenuData, selectedPeriodId);
+    const stationNames = getStationNames(periodMenuData, selectedPeriodId);
     const nonEmptyStations = Array.from(stationNames.entries())
         .filter(([stationId]) => (stationMap.get(stationId) || []).length > 0);
 
@@ -312,8 +312,8 @@ async function handleStationButtonSelection(
         return;
     }
 
-    const stationMap = organizeMenuByStation(menuData);
-    const stationNames = getStationNames(menuData);
+    const stationMap = organizeMenuByStation(menuData, periodId);
+    const stationNames = getStationNames(menuData, periodId);
     const stationName = stationNames.get(stationId) || 'Unknown Station';
     const stationItems = stationMap.get(stationId) || [];
 
