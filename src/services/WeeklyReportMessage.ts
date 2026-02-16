@@ -15,30 +15,99 @@ export class WeeklyReportScheduler {
      * Start the weekly report scheduler
      */
     start(): void {
-        // Validate required env vars on startup so failures are visible immediately
-        const productionRoleId = env.getOptional('PRODUCTION_CA_ROLE_ID');
-        const productionServerId = env.getOptional('PRODUCTION_SERVER_ID');
-        const productionChannelId = env.getOptional('PRODUCTION_CHANNEL_ID');
-        const weeklyReportUrl = env.getOptional('WEEKLY_REPORT_SURVEY_URL');
+        const mode = env.getOptional('WEEKLY_REPORT_MODE') || 'production';
+        const time1 = this.getConfiguredTime1();
+        const time2 = this.getConfiguredTime2();
+        const dayName = this.getConfiguredDayName();
 
-        const missing: string[] = [];
-        if (!productionRoleId) missing.push('PRODUCTION_CA_ROLE_ID');
-        if (!productionServerId) missing.push('PRODUCTION_SERVER_ID');
-        if (!productionChannelId) missing.push('PRODUCTION_CHANNEL_ID');
-        if (!weeklyReportUrl) missing.push('WEEKLY_REPORT_SURVEY_URL');
+        console.log(`[WeeklyReportScheduler] Mode: ${mode}`);
+        console.log(`[WeeklyReportScheduler] Schedule: ${dayName}s at ${this.formatTime(time1)} and ${this.formatTime(time2)} Arizona time`);
 
-        if (missing.length > 0) {
-            console.warn(`[WeeklyReportScheduler] WARNING: Missing env vars required for weekly reports: ${missing.join(', ')}`);
-            console.warn('[WeeklyReportScheduler] Weekly reports will NOT be sent until these are set in .env');
+        if (mode === 'test') {
+            // In test mode, validate test server env vars
+            const testRoleId = env.getOptional('TEST_CA_ROLE_ID');
+            const testServerId = env.getOptional('TEST_SERVER_ID');
+            const testChannelId = env.getOptional('TEST_CHANNEL_ID');
+            const weeklyReportUrl = env.getOptional('WEEKLY_REPORT_SURVEY_URL');
+
+            const missing: string[] = [];
+            if (!testRoleId) missing.push('TEST_CA_ROLE_ID');
+            if (!testServerId) missing.push('TEST_SERVER_ID');
+            if (!testChannelId) missing.push('TEST_CHANNEL_ID');
+            if (!weeklyReportUrl) missing.push('WEEKLY_REPORT_SURVEY_URL');
+
+            if (missing.length > 0) {
+                console.warn(`[WeeklyReportScheduler] WARNING: Missing env vars for test mode: ${missing.join(', ')}`);
+            }
+        } else {
+            // In production mode, validate production server env vars
+            const productionRoleId = env.getOptional('PRODUCTION_CA_ROLE_ID');
+            const productionServerId = env.getOptional('PRODUCTION_SERVER_ID');
+            const productionChannelId = env.getOptional('PRODUCTION_CHANNEL_ID');
+            const weeklyReportUrl = env.getOptional('WEEKLY_REPORT_SURVEY_URL');
+
+            const missing: string[] = [];
+            if (!productionRoleId) missing.push('PRODUCTION_CA_ROLE_ID');
+            if (!productionServerId) missing.push('PRODUCTION_SERVER_ID');
+            if (!productionChannelId) missing.push('PRODUCTION_CHANNEL_ID');
+            if (!weeklyReportUrl) missing.push('WEEKLY_REPORT_SURVEY_URL');
+
+            if (missing.length > 0) {
+                console.warn(`[WeeklyReportScheduler] WARNING: Missing env vars for production mode: ${missing.join(', ')}`);
+                console.warn('[WeeklyReportScheduler] Weekly reports will NOT be sent until these are set in .env');
+            }
         }
-
-        console.log('[WeeklyReportScheduler] Started - will send messages on Sundays at 6pm and 9pm Arizona time');
 
         // Check every 30 seconds for reliability
         this.checkAndSendReports();
         this.schedulerInterval = setInterval(() => {
             this.checkAndSendReports();
         }, this.checkInterval);
+    }
+
+    private getConfiguredTime1(): { hour: number; minute: number } {
+        return this.parseTimeEnv('WEEKLY_REPORT_TIME_1', 18, 0);
+    }
+
+    private getConfiguredTime2(): { hour: number; minute: number } {
+        return this.parseTimeEnv('WEEKLY_REPORT_TIME_2', 21, 0);
+    }
+
+    /**
+     * Parse a time env var. Supports "HH:MM" (e.g. "19:50") or just "HH" (e.g. "19").
+     */
+    private parseTimeEnv(key: 'WEEKLY_REPORT_TIME_1' | 'WEEKLY_REPORT_TIME_2', defaultHour: number, defaultMinute: number): { hour: number; minute: number } {
+        const val = env.getOptional(key);
+        if (!val) return { hour: defaultHour, minute: defaultMinute };
+        if (val.includes(':')) {
+            const [h, m] = val.split(':').map(Number);
+            return { hour: h, minute: m };
+        }
+        return { hour: parseInt(val, 10), minute: 0 };
+    }
+
+    private getConfiguredDay(): number {
+        const val = env.getOptional('WEEKLY_REPORT_DAY');
+        if (!val) return 0; // Default Sunday
+        const dayMap: Record<string, number> = {
+            sunday: 0, monday: 1, tuesday: 2, wednesday: 3,
+            thursday: 4, friday: 5, saturday: 6,
+            sun: 0, mon: 1, tue: 2, wed: 3, thu: 4, fri: 5, sat: 6
+        };
+        return dayMap[val.toLowerCase()] ?? 0;
+    }
+
+    private getConfiguredDayName(): string {
+        const names = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+        return names[this.getConfiguredDay()];
+    }
+
+    private formatTime(t: { hour: number; minute: number }): string {
+        const h = t.hour;
+        const m = t.minute;
+        const suffix = h < 12 ? 'am' : 'pm';
+        const displayH = h === 0 ? 12 : h > 12 ? h - 12 : h;
+        return m === 0 ? `${displayH}${suffix}` : `${displayH}:${m.toString().padStart(2, '0')}${suffix}`;
     }
 
     /**
@@ -107,17 +176,26 @@ export class WeeklyReportScheduler {
     private shouldSendReport(): string | null {
         const { day, hour, minute, dateStr } = this.getArizonaTime();
 
-        // Only on Sundays
-        if (day !== 0) return null;
+        const targetDay = this.getConfiguredDay();
+        const time1 = this.getConfiguredTime1();
+        const time2 = this.getConfiguredTime2();
 
-        // Check if we're within the first 5 minutes of 6 PM or 9 PM
-        const isEvening1 = hour === 18 && minute < 5;
-        const isEvening2 = hour === 21 && minute < 5;
+        // Only on the configured day
+        if (day !== targetDay) return null;
 
-        if (!isEvening1 && !isEvening2) return null;
+        // Check if we're within a 5-minute window starting at the configured time
+        const currentMinutes = hour * 60 + minute;
+        const target1Minutes = time1.hour * 60 + time1.minute;
+        const target2Minutes = time2.hour * 60 + time2.minute;
 
-        // Build a unique key for this send window (e.g., "2026-02-15-12")
-        const sendKey = `${dateStr}-${hour}`;
+        const isTime1 = currentMinutes >= target1Minutes && currentMinutes < target1Minutes + 5;
+        const isTime2 = currentMinutes >= target2Minutes && currentMinutes < target2Minutes + 5;
+
+        if (!isTime1 && !isTime2) return null;
+
+        // Build a unique key for this send window (includes target minute for uniqueness)
+        const targetMin = isTime1 ? target1Minutes : target2Minutes;
+        const sendKey = `${dateStr}-${targetMin}`;
 
         // Skip if we already sent for this window
         if (this.lastSentKey === sendKey) return null;
@@ -129,43 +207,46 @@ export class WeeklyReportScheduler {
      * Send weekly reports to the configured channels
      */
     private async sendWeeklyReports(): Promise<void> {
-        const { hour } = this.getArizonaTime();
+        const { hour, minute } = this.getArizonaTime();
+        const time1 = this.getConfiguredTime1();
+        const mode = env.getOptional('WEEKLY_REPORT_MODE') || 'production';
 
-        // Determine if this is the first (6 PM) or second (9 PM) message
-        const messageNumber = hour === 18 ? '1/2' : '2/2';
+        // Determine if this is the first or second message
+        const currentMinutes = hour * 60 + minute;
+        const target1Minutes = time1.hour * 60 + time1.minute;
+        const messageNumber = (currentMinutes >= target1Minutes && currentMinutes < target1Minutes + 5) ? '1/2' : '2/2';
 
-        // Get environment variables
-        const productionRoleId = env.getOptional('PRODUCTION_CA_ROLE_ID');
-        const productionServerId = env.getOptional('PRODUCTION_SERVER_ID');
-        const productionChannelId = env.getOptional('PRODUCTION_CHANNEL_ID');
-        const testRoleId = env.getOptional('TEST_CA_ROLE_ID');
-        const testServerId = env.getOptional('TEST_SERVER_ID');
-        const testChannelId = env.getOptional('TEST_CHANNEL_ID');
         const weeklyReportUrl = env.getOptional('WEEKLY_REPORT_SURVEY_URL');
 
-        // Send to production server
-        if (productionRoleId && productionServerId && productionChannelId && weeklyReportUrl) {
-            const productionMessage = `<@&${productionRoleId}> Weekly Report Reminder! (${messageNumber})
+        if (mode === 'test') {
+            // TEST MODE: only send to test server
+            const testRoleId = env.getOptional('TEST_CA_ROLE_ID');
+            const testServerId = env.getOptional('TEST_SERVER_ID');
+            const testChannelId = env.getOptional('TEST_CHANNEL_ID');
+
+            if (testRoleId && testServerId && testChannelId && weeklyReportUrl) {
+                const testMessage = `<@&${testRoleId}> Weekly Report Reminder! (${messageNumber}) [TEST]
 Weekly Report Link: ${weeklyReportUrl}`;
-            await this.sendToChannel(productionChannelId, productionServerId, productionMessage);
-            console.log(`[WeeklyReportScheduler] Weekly report (${messageNumber}) sent to production server`);
+                await this.sendToChannel(testChannelId, testServerId, testMessage);
+                console.log(`[WeeklyReportScheduler] Weekly report (${messageNumber}) sent to TEST server`);
+            } else {
+                console.warn('[WeeklyReportScheduler] Skipping test send - missing env vars (TEST_CA_ROLE_ID, TEST_SERVER_ID, TEST_CHANNEL_ID, or WEEKLY_REPORT_SURVEY_URL)');
+            }
         } else {
-            console.warn('[WeeklyReportScheduler] Skipping production send - missing env vars (PRODUCTION_CA_ROLE_ID, PRODUCTION_SERVER_ID, PRODUCTION_CHANNEL_ID, or WEEKLY_REPORT_SURVEY_URL)');
-        }
+            // PRODUCTION MODE: only send to production server
+            const productionRoleId = env.getOptional('PRODUCTION_CA_ROLE_ID');
+            const productionServerId = env.getOptional('PRODUCTION_SERVER_ID');
+            const productionChannelId = env.getOptional('PRODUCTION_CHANNEL_ID');
 
-        // Also send to test server
-        // COMMENTED OUT - Only send to production server
-        /*
-        if (!testRoleId || !testServerId || !testChannelId || !weeklyReportUrl) {
-            return;
-        }
-
-        const testMessage = `<@&${testRoleId}> Weekly Report Reminder! (${messageNumber}) [TEST SERVER]
+            if (productionRoleId && productionServerId && productionChannelId && weeklyReportUrl) {
+                const productionMessage = `<@&${productionRoleId}> Weekly Report Reminder! (${messageNumber})
 Weekly Report Link: ${weeklyReportUrl}`;
-
-        await this.sendToChannel(testChannelId, testServerId, testMessage);
-        */
-
+                await this.sendToChannel(productionChannelId, productionServerId, productionMessage);
+                console.log(`[WeeklyReportScheduler] Weekly report (${messageNumber}) sent to production server`);
+            } else {
+                console.warn('[WeeklyReportScheduler] Skipping production send - missing env vars (PRODUCTION_CA_ROLE_ID, PRODUCTION_SERVER_ID, PRODUCTION_CHANNEL_ID, or WEEKLY_REPORT_SURVEY_URL)');
+            }
+        }
     }
 
 

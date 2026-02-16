@@ -17,6 +17,10 @@ interface OptionalEnvVars {
     ASU_MENU_API_URL?: string;
     WEEKLY_REPORT_SURVEY_URL?: string;
     ENABLE_WEEKLY_REPORTS?: string;
+    WEEKLY_REPORT_MODE?: string;
+    WEEKLY_REPORT_TIME_1?: string;
+    WEEKLY_REPORT_TIME_2?: string;
+    WEEKLY_REPORT_DAY?: string;
 }
 
 class EnvironmentValidator {
@@ -66,7 +70,11 @@ class EnvironmentValidator {
             TEST_CHANNEL_ID: process.env.TEST_CHANNEL_ID,
             ASU_MENU_API_URL: process.env.ASU_MENU_API_URL,
             WEEKLY_REPORT_SURVEY_URL: process.env.WEEKLY_REPORT_SURVEY_URL,
-            ENABLE_WEEKLY_REPORTS: process.env.ENABLE_WEEKLY_REPORTS
+            ENABLE_WEEKLY_REPORTS: process.env.ENABLE_WEEKLY_REPORTS,
+            WEEKLY_REPORT_MODE: process.env.WEEKLY_REPORT_MODE,
+            WEEKLY_REPORT_TIME_1: process.env.WEEKLY_REPORT_TIME_1,
+            WEEKLY_REPORT_TIME_2: process.env.WEEKLY_REPORT_TIME_2,
+            WEEKLY_REPORT_DAY: process.env.WEEKLY_REPORT_DAY
         };
 
         console.log('Environment variables validated successfully');
