@@ -3,27 +3,39 @@ import { DiningHallId } from '../commands/type/menu';
 export const DINING_HALLS = {
     barrett: {
         name: "Barrett",
-        id: DiningHallId.Barrett
+        id: DiningHallId.Barrett,
+        campusUrlKey: "tempe-campus",
+        locationUrlKey: "barrett-dining-center"
     },
     manzy: {
         name: "Manzy",
-        id: DiningHallId.Manzy
+        id: DiningHallId.Manzy,
+        campusUrlKey: "tempe-campus",
+        locationUrlKey: "manzanita-dining-hall"
     },
     hassy: {
         name: "Hassay",
-        id: DiningHallId.Hassay
+        id: DiningHallId.Hassay,
+        campusUrlKey: "tempe-campus",
+        locationUrlKey: "hassayampa-dining-hall"
     },
     tooker: {
         name: "Tooker",
-        id: DiningHallId.Tooker
+        id: DiningHallId.Tooker,
+        campusUrlKey: "tempe-campus",
+        locationUrlKey: "tooker-house-dining-hall"
     },
     mu: {
         name: "MU",
-        id: DiningHallId.MU
+        id: DiningHallId.MU,
+        campusUrlKey: "tempe-campus",
+        locationUrlKey: "pitchforks-dining-hall"
     },
     hida: {
         name: "HIDA",
-        id: DiningHallId.HIDA
+        id: DiningHallId.HIDA,
+        campusUrlKey: "tempe-campus",
+        locationUrlKey: "hida-dining-hall"
     }
 };
 
