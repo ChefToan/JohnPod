@@ -138,33 +138,41 @@ export async function setupInteractionHandlers(
         if (componentInteraction.isButton()) {
             const buttonInteraction = componentInteraction;
 
-            if (buttonInteraction.customId.startsWith('period_')) {
-                await handlePeriodSelection(
-                    buttonInteraction,
-                    diningHall,
-                    formattedDate,
-                    displayName,
-                    formattedDisplayDate,
-                    availablePeriods,
-                    currentPeriodId,
-                    currentPeriodMenuData
-                );
-            } else if (buttonInteraction.customId.startsWith('station_')) {
-                await handleStationButtonSelection(
-                    buttonInteraction,
-                    diningHall,
-                    formattedDate,
-                    displayName,
-                    formattedDisplayDate,
-                    availablePeriods,
-                    currentPeriodId,
-                    currentPeriodMenuData
-                );
-            } else if (buttonInteraction.customId === 'back_to_periods') {
-                await buttonInteraction.editReply({
-                    embeds: [mainEmbed],
-                    components: periodButtons
-                });
+            try {
+                if (buttonInteraction.customId.startsWith('period_')) {
+                    await handlePeriodSelection(
+                        buttonInteraction,
+                        diningHall,
+                        formattedDate,
+                        displayName,
+                        formattedDisplayDate,
+                        availablePeriods,
+                        currentPeriodId,
+                        currentPeriodMenuData
+                    );
+                } else if (buttonInteraction.customId.startsWith('station_')) {
+                    await handleStationButtonSelection(
+                        buttonInteraction,
+                        diningHall,
+                        formattedDate,
+                        displayName,
+                        formattedDisplayDate,
+                        availablePeriods,
+                        currentPeriodId,
+                        currentPeriodMenuData
+                    );
+                } else if (buttonInteraction.customId === 'back_to_periods') {
+                    await buttonInteraction.editReply({
+                        embeds: [mainEmbed],
+                        components: periodButtons
+                    });
+                }
+            } catch (error) {
+                console.error('[MenuCommand] Button handler error:', error);
+                await buttonInteraction.followUp({
+                    content: MENU_CONFIG.MESSAGES.UNEXPECTED_ERROR,
+                    flags: 64
+                }).catch(() => {});
             }
         }
 
@@ -380,10 +388,16 @@ async function handleCollectorEnd(
 
 // Error handling
 async function handleError(interaction: ChatInputCommandInteraction, error: any) {
-    console.error('Error in menu command:', error);
+    // Only log full stack for unexpected errors, not user input errors
+    const isUserInputError = error.message?.includes('date') || error.message?.includes('Date') || error.message?.includes('MM/DD/YYYY');
+    if (isUserInputError) {
+        console.log(`[MenuCommand] User input error: ${error.message}`);
+    } else {
+        console.error('[MenuCommand] Error:', error);
+    }
 
-    const errorMessage = error.message === MENU_CONFIG.MESSAGES.INVALID_DATE_FORMAT 
-        ? error.message 
+    const errorMessage = isUserInputError
+        ? error.message
         : MENU_CONFIG.MESSAGES.UNEXPECTED_ERROR;
 
     try {

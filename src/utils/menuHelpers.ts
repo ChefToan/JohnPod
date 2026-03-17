@@ -153,13 +153,31 @@ export function formatDateForAPI(date?: string): { formattedDate: string, displa
     let displayDate: Date;
 
     if (date) {
-        // Validate date format
+        // Validate date format (MM/DD/YYYY)
         if (!MENU_CONFIG.DATE_REGEX.test(date)) {
             throw new Error(MENU_CONFIG.MESSAGES.INVALID_DATE_FORMAT);
         }
-        formattedDate = date;
         const [month, day, year] = date.split('/').map(num => parseInt(num, 10));
         displayDate = new Date(year, month - 1, day);
+
+        // Catch impossible dates like 02/30
+        if (isNaN(displayDate.getTime()) || displayDate.getMonth() !== month - 1) {
+            throw new Error('Invalid date. That date does not exist. Please use MM/DD/YYYY format.');
+        }
+
+        // Reject dates more than 30 days in the past or future
+        const { month: nowMonth, day: nowDay, year: nowYear } = getArizonaDateComponents();
+        const today = new Date(nowYear, nowMonth - 1, nowDay);
+        const diffDays = Math.round((displayDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+
+        if (diffDays < -30) {
+            throw new Error('Date is too far in the past. You can only look back up to 30 days.');
+        }
+        if (diffDays > 30) {
+            throw new Error('Date is too far in the future. You can only look ahead up to 30 days.');
+        }
+
+        formattedDate = date;
     } else {
         // Get current date in Arizona MST timezone
         const { month, day, year } = getArizonaDateComponents();

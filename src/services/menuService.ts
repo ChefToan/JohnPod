@@ -275,12 +275,11 @@ export class MenuService {
         if (isToday) {
             const cached = menuCache.get(cacheKey);
             if (cached) {
-                console.log(`[MenuService] Cache HIT for ${cacheKey}`);
                 return cached;
             }
         }
 
-        console.log(`[MenuService] ${isToday ? 'Cache MISS' : 'Live fetch (non-today)'} for ${cacheKey}`);
+        console.log(`[MenuService] Fetching ${cacheKey}`);
 
         if (!circuitBreaker.canMakeRequest()) {
             throw new Error('Service temporarily unavailable due to repeated failures');
