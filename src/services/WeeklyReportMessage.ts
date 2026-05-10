@@ -66,7 +66,8 @@ export class WeeklyReportScheduler {
     }
 
     private getConfiguredTime1(): { hour: number; minute: number } {
-        return this.parseTimeEnv('WEEKLY_REPORT_TIME_1', 18, 0);
+        return this.parseTimeEnv('WEEKLY_REPORT_TIME_1', 21, 0);
+        // return this.parseTimeEnv('WEEKLY_REPORT_TIME_1', 18, 0);
     }
 
     private getConfiguredTime2(): { hour: number; minute: number } {
