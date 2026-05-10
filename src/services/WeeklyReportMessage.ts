@@ -66,7 +66,8 @@ export class WeeklyReportScheduler {
     }
 
     private getConfiguredTime1(): { hour: number; minute: number } {
-        return this.parseTimeEnv('WEEKLY_REPORT_TIME_1', 18, 0);
+        return this.parseTimeEnv('WEEKLY_REPORT_TIME_1', 21, 0);
+        // return this.parseTimeEnv('WEEKLY_REPORT_TIME_1', 18, 0);
     }
 
     private getConfiguredTime2(): { hour: number; minute: number } {
@@ -191,10 +192,14 @@ export class WeeklyReportScheduler {
         const isTime1 = currentMinutes >= target1Minutes && currentMinutes < target1Minutes + 5;
         const isTime2 = currentMinutes >= target2Minutes && currentMinutes < target2Minutes + 5;
 
-        if (!isTime1 && !isTime2) return null;
+        // TEMP: Only check first time as the dual alert system is temporarily disabled
+        // if (!isTime1 && !isTime2) return null;
+        if (!isTime1) return null;
+
 
         // Build a unique key for this send window (includes target minute for uniqueness)
-        const targetMin = isTime1 ? target1Minutes : target2Minutes;
+        // const targetMin = isTime1 ? target1Minutes : target2Minutes;
+        const targetMin = target1Minutes; // TEMP: Only use first time for key as second time is disabled
         const sendKey = `${dateStr}-${targetMin}`;
 
         // Skip if we already sent for this window
@@ -239,8 +244,10 @@ Weekly Report Link: ${weeklyReportUrl}`;
             const productionChannelId = env.getOptional('PRODUCTION_CHANNEL_ID');
 
             if (productionRoleId && productionServerId && productionChannelId && weeklyReportUrl) {
-                const productionMessage = `<@&${productionRoleId}> Weekly Report Reminder! (${messageNumber})
-Weekly Report Link: ${weeklyReportUrl}`;
+                // TEMP: removed normal message for summer break
+//                 const productionMessage = `<@&${productionRoleId}> Weekly Report Reminder! (${messageNumber})
+// Weekly Report Link: ${weeklyReportUrl}`;
+                const productionMessage = `@&${productionRoleId}> Nar! John Pod wishes you a good summer break! I will return in the next season of Tooker House....`;
                 await this.sendToChannel(productionChannelId, productionServerId, productionMessage);
                 console.log(`[WeeklyReportScheduler] Weekly report (${messageNumber}) sent to production server`);
             } else {
