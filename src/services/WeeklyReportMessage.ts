@@ -191,10 +191,14 @@ export class WeeklyReportScheduler {
         const isTime1 = currentMinutes >= target1Minutes && currentMinutes < target1Minutes + 5;
         const isTime2 = currentMinutes >= target2Minutes && currentMinutes < target2Minutes + 5;
 
-        if (!isTime1 && !isTime2) return null;
+        // TEMP: Only check first time as the dual alert system is temporarily disabled
+        // if (!isTime1 && !isTime2) return null;
+        if (!isTime1) return null;
+
 
         // Build a unique key for this send window (includes target minute for uniqueness)
-        const targetMin = isTime1 ? target1Minutes : target2Minutes;
+        // const targetMin = isTime1 ? target1Minutes : target2Minutes;
+        const targetMin = target1Minutes; // TEMP: Only use first time for key as second time is disabled
         const sendKey = `${dateStr}-${targetMin}`;
 
         // Skip if we already sent for this window
