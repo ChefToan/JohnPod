@@ -243,8 +243,10 @@ Weekly Report Link: ${weeklyReportUrl}`;
             const productionChannelId = env.getOptional('PRODUCTION_CHANNEL_ID');
 
             if (productionRoleId && productionServerId && productionChannelId && weeklyReportUrl) {
-                const productionMessage = `<@&${productionRoleId}> Weekly Report Reminder! (${messageNumber})
-Weekly Report Link: ${weeklyReportUrl}`;
+                // TEMP: removed normal message for summer break
+//                 const productionMessage = `<@&${productionRoleId}> Weekly Report Reminder! (${messageNumber})
+// Weekly Report Link: ${weeklyReportUrl}`;
+                const productionMessage = `@&${productionRoleId}> Nar! John Pod wishes you a good summer break! I will return in the next season of Tooker House....`;
                 await this.sendToChannel(productionChannelId, productionServerId, productionMessage);
                 console.log(`[WeeklyReportScheduler] Weekly report (${messageNumber}) sent to production server`);
             } else {
